@@ -59,6 +59,9 @@ function processData(data, socket) {
       const imei = processImeiMessage(message);
       if (imei) {
         socketToImeiMap[socket.remoteAddress] = imei; // Associate IMEI with the socket
+        socket.write("#AL#1\r\n");
+      } else {
+        socket.write("#AL#0\r\n");
       }
     } else if (message.startsWith("#SD#")) {
       console.log("Received location message");
