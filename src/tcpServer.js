@@ -98,7 +98,7 @@ function processLocationMessage(message, socket) {
   const lonDegrees = Math.floor(lon1 / 100);
   const lonMinutes = lon1 - lonDegrees * 100;
   const longitude =
-    lon2 === "W"
+    lon2 === "E"
       ? lonDegrees + lonMinutes / 60
       : -(lonDegrees + lonMinutes / 60);
 
@@ -109,6 +109,8 @@ function processLocationMessage(message, socket) {
   const imei = socketToImeiMap[socket.remoteAddress];
   if (imei) {
     console.log("IMEI associated with this socket:", imei);
+
+    socket.write("#SDL#1\r\n");
 
     // Example: Make HTTP request using makeHttpRequest function
     makeHttpRequest(imei, latitude, longitude)
@@ -122,6 +124,7 @@ function processLocationMessage(message, socket) {
       });
   } else {
     console.log("No IMEI associated with this socket");
+    socket.write("#ASD#0\r\n");
   }
 }
 
