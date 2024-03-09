@@ -110,7 +110,7 @@ function processLocationMessage(message, socket) {
   if (imei) {
     console.log("IMEI associated with this socket:", imei);
 
-    socket.write("#SDL#1\r\n");
+    socket.write("#ASD#1\r\n");
 
     // Example: Make HTTP request using makeHttpRequest function
     makeHttpRequest(imei, latitude, longitude)
