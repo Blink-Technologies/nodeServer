@@ -6,7 +6,7 @@ const path = require("path");
 function serveLatestHTML() {
   const htmlDir = ".";
   const endpoint = "/logs";
-  const port = 1020;
+  const port = 3046;
   const server = http.createServer((req, res) => {
     const htmlFilePath = path.join(htmlDir, "console-logs.html");
 
