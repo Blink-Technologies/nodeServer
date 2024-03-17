@@ -2,6 +2,7 @@
 const net = require("net");
 const config = require("./config");
 const { makeHttpRequest } = require("./httpRequests");
+const { appendToFile, deleteFile } = require("./appendToFile");
 
 let buffer = {};
 let socketToImeiMap = {}; // Mapping socket objects to their corresponding IMEI numbers
@@ -22,10 +23,20 @@ function start() {
 
   server.listen(config.tcpPort, () => {
     console.log(`TCP server listening on port ${config.tcpPort}`);
+    deleteFile();
   });
 }
 
 function processData(data, socket) {
+  const textToAppend = "Received: " + data + " from: " + socket.remoteAddress;
+  appendToFile(textToAppend)
+    .then(() => {
+      console.log("Text appended to file successfully.");
+    })
+    .catch((err) => {
+      console.error("Error appending text to file:", err);
+    });
+
   // Process received data and extract information
   // Add data to buffer
   if (!buffer[socket.remoteAddress]) {
@@ -53,7 +64,10 @@ function processData(data, socket) {
 
   // Process complete messages
   messages.forEach((message) => {
-    console.log("Received message:", message);
+    console.log(
+      "Received message:" + message + "  from: " + socket.remoteAddress
+    );
+
     if (message.startsWith("#L#")) {
       console.log("Received IMEI message");
       const imei = processImeiMessage(message);
