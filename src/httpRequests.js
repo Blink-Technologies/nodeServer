@@ -34,6 +34,38 @@ async function makeHttpRequest(imei, latitude, longitude) {
     }
   }
 }
+async function makeHttpRequest(imei, latitude, longitude) {
+  const url = `${config.apiUrl}/equipment/editEquipment/${imei}`;
+  const headers = { Authorization: authToken };
+  const body = { longitude, latitude };
+
+  try {
+    const response = await axios.post(url, body, { headers });
+    console.log("HTTP request successful:", response.data);
+  } catch (error) {
+    console.error("Error making HTTP request:", error);
+    if (error.response && error.response.status === 401) {
+      // Unauthorized, attempt login again
+      await login();
+    }
+  }
+}
+async function makeKeyValueHttpRequest(imei, keyValue) {
+  const url = `${config.apiUrl}/equipment/editInstantParams/${imei}`;
+  const headers = { Authorization: authToken };
+  const body = { ...keyValue };
+
+  try {
+    const response = await axios.post(url, body, { headers });
+    console.log("HTTP request successful:", response.data);
+  } catch (error) {
+    console.error("Error making HTTP request:", error);
+    if (error.response && error.response.status === 401) {
+      // Unauthorized, attempt login again
+      await login();
+    }
+  }
+}
 
 function setOnUnauthorizedCallback(callback) {
   axios.interceptors.response.use(
@@ -47,4 +79,9 @@ function setOnUnauthorizedCallback(callback) {
   );
 }
 
-module.exports = { login, makeHttpRequest, setOnUnauthorizedCallback };
+module.exports = {
+  login,
+  makeHttpRequest,
+  makeKeyValueHttpRequest,
+  setOnUnauthorizedCallback,
+};

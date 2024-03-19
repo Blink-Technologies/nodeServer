@@ -1,8 +1,9 @@
 // tcpServer.js
 const net = require("net");
 const config = require("./config");
-const { makeHttpRequest } = require("./httpRequests");
+const { makeHttpRequest, makeKeyValueHttpRequest } = require("./httpRequests");
 const { appendToFile, deleteFile } = require("./appendToFile");
+const pidMapping = require("./pidMapping");
 
 let buffer = {};
 let socketToImeiMap = {}; // Mapping socket objects to their corresponding IMEI numbers
@@ -80,6 +81,9 @@ function processData(data, socket) {
     } else if (message.startsWith("#SD#")) {
       console.log("Received location message");
       processLocationMessage(message, socket);
+    } else if (message.startsWith("#D#")) {
+      console.log("Received can message");
+      processCanMessage(message, socket);
     } else {
       console.log("Unknown message format:", message);
     }
@@ -139,6 +143,48 @@ function processLocationMessage(message, socket) {
   } else {
     console.log("No IMEI associated with this socket");
     socket.write("#ASD#0\r\n");
+  }
+}
+
+async function processCanMessage(message, socket) {
+  const imei = socketToImeiMap[socket.remoteAddress];
+  if (!imei) {
+    console.log("no associated devices");
+    socket.write("#AD#0\r\n");
+    return;
+  }
+
+  // Define the regular expression pattern to match the expected format
+  const regex = /^#D#([0-9a-fA-F]{4});([0-9a-fA-F]{16}).*$/;
+
+  // Execute the regular expression pattern on the message
+  const match = message.match(regex);
+
+  // Check if the message matches the expected format
+  if (match) {
+    // Extract the 4-character string and the second 16-character string
+    const pid = match[1];
+    const data = match[2];
+
+    // Call your pidMapping function (assuming it's already defined)
+    try {
+      const [param, value] = pidMapping(pid, data);
+
+      console.log("Parameter:", param);
+      console.log("Value:", value);
+      const keyValue = { [param]: value };
+
+      // Making the HTTP request using the key-value pair
+      await makeKeyValueHttpRequest(imei, keyValue);
+
+      socket.write("#AD#1\r\n");
+    } catch (error) {
+      console.error(error.message);
+      socket.write("#AD#0\r\n");
+    }
+  } else {
+    console.error("Error: Incorrect message format");
+    socket.write("#AD#0\r\n");
   }
 }
 
