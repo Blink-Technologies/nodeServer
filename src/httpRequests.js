@@ -51,7 +51,7 @@ async function makeHttpRequest(imei, latitude, longitude) {
   }
 }
 async function makeKeyValueHttpRequest(imei, keyValue) {
-  const url = `${config.apiUrl}/equipment/editInstantParams/${imei}`;
+  const url = `${config.apiUrl}/equipment/editEquipment/${imei}`;
   const headers = { Authorization: authToken };
   const body = { ...keyValue };
 
