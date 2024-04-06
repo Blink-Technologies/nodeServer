@@ -155,7 +155,7 @@ async function processCanMessage(message, socket) {
   }
 
   // Define the regular expression pattern to match the expected format
-  const regex = /^#D#([0-9a-fA-F]{4});([0-9a-fA-F]{16}).*$/;
+  const regex = /^#D#([0-9a-fA-F]{8});([0-9a-fA-F]{16}).*$/;
 
   // Execute the regular expression pattern on the message
   const match = message.match(regex);
@@ -163,12 +163,16 @@ async function processCanMessage(message, socket) {
   // Check if the message matches the expected format
   if (match) {
     // Extract the 4-character string and the second 16-character string
-    const pid = match[1];
+    const canID = match[1];
+
+    // Remove the first 2 and last characters from pgn and extract middle 4 characters
+    const pgnString = canID.substring(2, 6);
+    const pgn = parseInt(pgnString, 16); // Convert hexadecimal string to integer
     const data = match[2];
 
     // Call your pidMapping function (assuming it's already defined)
     try {
-      const [param, value] = pidMapping(pid, data);
+      const [param, value] = pidMapping(pgn, data);
 
       console.log("Parameter:", param);
       console.log("Value:", value);
