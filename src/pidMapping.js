@@ -98,10 +98,10 @@ function processEngineSpeedStd(data) {
   const byte3 = parseInt(data.substring(4, 6), 16);
   console.log(data);
   console.log(data.substring(6, 8), 16);
-  console.log(byte4);
+  console.log(byte3);
   const byte4 = parseInt(data.substring(6, 8), 16);
   console.log(data.substring(8, 10), 16);
-  console.log(byte5);
+  console.log(byte4);
   const engineSpeed = byte3 * 256 + byte4;
   return engineSpeed;
 }
