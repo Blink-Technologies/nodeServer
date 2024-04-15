@@ -2,6 +2,13 @@
 
 // Define the mapping of strings to their corresponding values
 const mapping = {
+  505: { parameter: "rpm", function: processEngineSpeedStd },
+  852: { parameter: "speed", function: processVehicleSpeedStd },
+  1477: { parameter: "odometer", function: processOdometerStd },
+  1408: {
+    parameter: "engineTemperature",
+    function: processEngineTemperatureStd,
+  },
   61444: { parameter: "rpm", function: processEngineSpeed },
   65265: { parameter: "speed", function: processVehicleSpeed },
   65255: { parameter: "hoursOfOperation", function: processHoursOfOperation },
@@ -83,4 +90,44 @@ function processBatteryVoltage(data) {
   const byte8 = parseInt(data.substring(2, 4), 16);
   const batteryVoltage = (byte8 * 256 + byte7) * 0.05;
   return batteryVoltage;
+}
+
+//**********************NISSAN AD********************/
+
+function processEngineSpeedStd(data) {
+  const byte3 = parseInt(data.substring(4, 6), 16);
+  console.log(data);
+  console.log(data.substring(6, 8), 16);
+  console.log(byte4);
+  const byte4 = parseInt(data.substring(6, 8), 16);
+  console.log(data.substring(8, 10), 16);
+  console.log(byte5);
+  const engineSpeed = byte3 * 256 + byte4;
+  return engineSpeed;
+}
+
+function processVehicleSpeedStd(data) {
+  const byte1 = parseInt(data.substring(0, 2), 16);
+  const byte2 = parseInt(data.substring(2, 4), 16);
+  const vehicleSpeed = byte1 * 256 + byte2;
+  return vehicleSpeed;
+}
+
+function processOdometerStd(data) {
+  const byte5 = parseInt(data.substring(8, 10), 16);
+  const byte6 = parseInt(data.substring(10, 12), 16);
+  const byte7 = parseInt(data.substring(12, 14), 16);
+  const byte8 = parseInt(data.substring(14, 16), 16);
+  const odometer =
+    (byte8 * 16777216 + byte7 * 65536 + byte6 * 256 + byte5) * 0.125;
+  return odometer;
+}
+function processEngineTemperatureStd(data) {
+  const byte5 = parseInt(data.substring(8, 10), 16);
+  const byte6 = parseInt(data.substring(10, 12), 16);
+  const byte7 = parseInt(data.substring(12, 14), 16);
+  const byte8 = parseInt(data.substring(14, 16), 16);
+  const odometer =
+    (byte8 * 16777216 + byte7 * 65536 + byte6 * 256 + byte5) * 0.125;
+  return odometer;
 }
