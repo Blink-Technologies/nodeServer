@@ -20,6 +20,12 @@ function start() {
       delete buffer[socket.remoteAddress];
       delete socketToImeiMap[socket.remoteAddress];
     });
+
+    socket.on("error", (err) => {
+      console.error("Socket error:", err);
+      delete buffer[socket.remoteAddress];
+      delete socketToImeiMap[socket.remoteAddress];
+    });
   });
 
   server.listen(config.tcpPort, () => {
