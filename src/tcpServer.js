@@ -23,6 +23,7 @@ function start() {
 
     socket.on("error", (err) => {
       console.error("Socket error:", err);
+      socket.destroy();
       delete buffer[socket.remoteAddress];
       delete socketToImeiMap[socket.remoteAddress];
     });
