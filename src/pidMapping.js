@@ -16,6 +16,7 @@ const mapping = {
   65262: { parameter: "engineTemperature", function: processEngineTemperature },
   65263: { parameter: "engineOilLevel", function: processEngineOilLevel },
   65271: { parameter: "batteryVoltage", function: processBatteryVoltage },
+  0: { parameter: "IOs", function: processInputsOutputs },
 };
 
 // Exporting the function pidMapping
@@ -27,14 +28,14 @@ module.exports = function pidMapping(pgn, data) {
   // If found, process data accordingly and return the corresponding value
   if (mappingResult !== undefined) {
     const { parameter, function: processingFunction } = mappingResult;
-    const value = processingFunction(data);
-    return [parameter, value];
+    const dataObj = processingFunction(data, parameter);
+    return dataObj;
   } else {
     throw new Error("Invalid PGN");
   }
 };
 
-function processEngineSpeed(data) {
+function processEngineSpeed(data, parameter) {
   const byte4 = parseInt(data.substring(6, 8), 16);
   console.log(data);
   console.log(data.substring(6, 8), 16);
@@ -43,58 +44,96 @@ function processEngineSpeed(data) {
   console.log(data.substring(8, 10), 16);
   console.log(byte5);
   const engineSpeed = (byte5 * 256 + byte4) * 0.125;
-  return engineSpeed;
+  return { [parameter]: engineSpeed };
 }
 
-function processVehicleSpeed(data) {
+function processVehicleSpeed(data, parameter) {
   const byte2 = parseInt(data.substring(2, 4), 16);
   const byte3 = parseInt(data.substring(4, 6), 16);
   const vehicleSpeed = (byte3 * 256 + byte2) / 256;
-  return vehicleSpeed;
+  return { [parameter]: vehicleSpeed };
 }
 
-function processHoursOfOperation(data) {
+function processHoursOfOperation(data, parameter) {
   const byte1 = parseInt(data.substring(0, 2), 16);
   const byte2 = parseInt(data.substring(2, 4), 16);
   const byte3 = parseInt(data.substring(4, 6), 16);
   const byte4 = parseInt(data.substring(6, 8), 16);
   const hoursOfOperation =
     (byte4 * 16777216 + byte3 * 65536 + byte2 * 256 + byte1) * 0.05;
-  return hoursOfOperation;
+  return { [parameter]: hoursOfOperation };
 }
 
-function processOdometer(data) {
+function processOdometer(data, parameter) {
   const byte5 = parseInt(data.substring(8, 10), 16);
   const byte6 = parseInt(data.substring(10, 12), 16);
   const byte7 = parseInt(data.substring(12, 14), 16);
   const byte8 = parseInt(data.substring(14, 16), 16);
   const odometer =
     (byte8 * 16777216 + byte7 * 65536 + byte6 * 256 + byte5) * 0.125;
-  return odometer;
+  return { [parameter]: odometer };
 }
 
-function processEngineTemperature(data) {
+function processEngineTemperature(data, parameter) {
   const byte1 = parseInt(data.substring(0, 2), 16);
   const engineTemperature = byte1 - 40;
-  return engineTemperature;
+  return { [parameter]: engineTemperature };
 }
 
-function processEngineOilLevel(data) {
+function processEngineOilLevel(data, parameter) {
   const byte3 = parseInt(data.substring(0, 2), 16);
   const engineOilLevel = byte3 * 0.4;
-  return engineOilLevel;
+  return { [parameter]: engineOilLevel };
 }
 
-function processBatteryVoltage(data) {
+function processBatteryVoltage(data, parameter) {
   const byte7 = parseInt(data.substring(0, 2), 16);
   const byte8 = parseInt(data.substring(2, 4), 16);
   const batteryVoltage = (byte8 * 256 + byte7) * 0.05;
-  return batteryVoltage;
+  return { [parameter]: batteryVoltage };
+}
+
+function processInputsOutputs(data, parameter) {
+  const byte1 = parseInt(data.substring(0, 2), 16);
+  const byte2 = parseInt(data.substring(2, 4), 16);
+  const byte3 = parseInt(data.substring(4, 6), 16);
+  const byte4 = parseInt(data.substring(6, 8), 16);
+  const byte5 = parseInt(data.substring(8, 10), 16);
+  const byte6 = parseInt(data.substring(10, 12), 16);
+  const byte7 = parseInt(data.substring(12, 14), 16);
+  const byte8 = parseInt(data.substring(14, 16), 16);
+
+  const digitalInputs = byte1
+    .toString(2)
+    .padStart(8, "0")
+    .split("")
+    .map((bit) => parseInt(bit));
+  const digitalOutputs = byte2
+    .toString(2)
+    .padStart(8, "0")
+    .split("")
+    .map((bit) => parseInt(bit));
+  const DI1 = digitalInputs[0];
+  const DI2 = digitalInputs[1];
+  const DO1 = digitalOutputs[0];
+  const DO2 = digitalOutputs[1];
+  const analogInput1 = (byte3 << 8) | byte4;
+  const analogInput2 = (byte5 << 8) | byte6;
+  const analogInput3 = (byte7 << 8) | byte8;
+
+  return {
+    DI1: DI1,
+    DI2: DI2,
+    DO1: DO1,
+    DO2: DO2,
+    AI1: analogInput1,
+    AI2: analogInput2,
+  };
 }
 
 //**********************NISSAN AD********************/
 
-function processEngineSpeedStd(data) {
+function processEngineSpeedStd(data, parameter) {
   const byte3 = parseInt(data.substring(4, 6), 16);
   console.log(data);
   console.log(data.substring(6, 8), 16);
@@ -103,31 +142,31 @@ function processEngineSpeedStd(data) {
   console.log(data.substring(8, 10), 16);
   console.log(byte4);
   const engineSpeed = byte3 * 256 + byte4;
-  return engineSpeed;
+  return { [parameter]: engineSpeed };
 }
 
-function processVehicleSpeedStd(data) {
+function processVehicleSpeedStd(data, parameter) {
   const byte1 = parseInt(data.substring(0, 2), 16);
   const byte2 = parseInt(data.substring(2, 4), 16);
   const vehicleSpeed = byte1 * 256 + byte2;
-  return vehicleSpeed;
+  return { [parameter]: vehicleSpeed };
 }
 
-function processOdometerStd(data) {
+function processOdometerStd(data, parameter) {
   const byte5 = parseInt(data.substring(8, 10), 16);
   const byte6 = parseInt(data.substring(10, 12), 16);
   const byte7 = parseInt(data.substring(12, 14), 16);
   const byte8 = parseInt(data.substring(14, 16), 16);
   const odometer =
     (byte8 * 16777216 + byte7 * 65536 + byte6 * 256 + byte5) * 0.125;
-  return odometer;
+  return { [parameter]: odometer };
 }
-function processEngineTemperatureStd(data) {
+function processEngineTemperatureStd(data, parameter) {
   const byte5 = parseInt(data.substring(8, 10), 16);
   const byte6 = parseInt(data.substring(10, 12), 16);
   const byte7 = parseInt(data.substring(12, 14), 16);
   const byte8 = parseInt(data.substring(14, 16), 16);
   const odometer =
     (byte8 * 16777216 + byte7 * 65536 + byte6 * 256 + byte5) * 0.125;
-  return odometer;
+  return { [parameter]: odometer };
 }

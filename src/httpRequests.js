@@ -52,6 +52,7 @@ async function makeHttpRequest(imei, latitude, longitude) {
 }
 async function makeKeyValueHttpRequest(imei, keyValue) {
   const url = `${config.apiUrl}/equipment/editEquipment/${imei}`;
+  //const url = "http://192.168.100.25:5000";
   const headers = { Authorization: authToken };
   const body = { ...keyValue };
 

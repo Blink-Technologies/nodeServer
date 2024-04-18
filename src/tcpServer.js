@@ -189,16 +189,16 @@ async function processCanMessage(message, socket) {
 
     // Call your pidMapping function (assuming it's already defined)
     try {
-      const [param, value] = pidMapping(pgn, data);
+      const keyValue = pidMapping(pgn, data);
 
-      console.log("Parameter:", param);
+      /*console.log("Parameter:", param);
       console.log("Value:", value);
-      const keyValue = { [param]: value };
+      const keyValue = { [param]: value };*/
 
       // Making the HTTP request using the key-value pair
       await makeKeyValueHttpRequest(imei, keyValue);
 
-      socket.write("#AD#1\r\n");
+      socket.write("#AD#1;00\r\n");
     } catch (error) {
       console.error(error.message);
       socket.write("#AD#0\r\n");
