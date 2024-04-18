@@ -16,7 +16,7 @@ const mapping = {
   65262: { parameter: "engineTemperature", function: processEngineTemperature },
   65263: { parameter: "engineOilLevel", function: processEngineOilLevel },
   65271: { parameter: "batteryVoltage", function: processBatteryVoltage },
-  0: { parameter: "IOs", function: processInputsOutputs },
+  4804467: { parameter: "IOs", function: processInputsOutputs },
 };
 
 // Exporting the function pidMapping
