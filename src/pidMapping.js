@@ -120,6 +120,8 @@ function processInputsOutputs(data, parameter) {
   const analogInput1 = (byte3 << 8) | byte4;
   const analogInput2 = (byte5 << 8) | byte6;
   const analogInput3 = (byte7 << 8) | byte8;
+  console.log(analogInput1);
+  console.log(analogInput2);
 
   return {
     DI1: DI1,
