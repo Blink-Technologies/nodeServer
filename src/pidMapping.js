@@ -16,6 +16,7 @@ const mapping = {
   65262: { parameter: "engineTemperature", function: processEngineTemperature },
   65263: { parameter: "engineOilLevel", function: processEngineOilLevel },
   65271: { parameter: "batteryVoltage", function: processBatteryVoltage },
+  65276: { parameter: "fuelLevel", function: processFuelLevel },
   4804467: { parameter: "IOs", function: processInputsOutputs },
 };
 
@@ -91,6 +92,11 @@ function processBatteryVoltage(data, parameter) {
   const byte8 = parseInt(data.substring(2, 4), 16);
   const batteryVoltage = (byte8 * 256 + byte7) * 0.05;
   return { [parameter]: batteryVoltage };
+}
+function processFuelLevel(data, parameter) {
+  const byte2 = parseInt(data.substring(2, 4), 16);
+  const fuelLevel = byte2 * 0.4;
+  return { [parameter]: fuelLevel };
 }
 
 function processInputsOutputs(data, parameter) {
