@@ -149,24 +149,23 @@ function processEngineSpeedStd(data, parameter) {
   const byte4 = parseInt(data.substring(6, 8), 16);
   console.log(data.substring(8, 10), 16);
   console.log(byte4);
-  const engineSpeed = byte3 * 256 + byte4;
+  const engineSpeed = ((byte3 * 256 + byte4) / 10).toFixed(1);
+
   return { [parameter]: engineSpeed };
 }
 
 function processVehicleSpeedStd(data, parameter) {
   const byte1 = parseInt(data.substring(0, 2), 16);
   const byte2 = parseInt(data.substring(2, 4), 16);
-  const vehicleSpeed = byte1 * 256 + byte2;
+  const vehicleSpeed = ((byte1 * 256 + byte2) / 161).toFixed(1);
   return { [parameter]: vehicleSpeed };
 }
 
 function processOdometerStd(data, parameter) {
-  const byte5 = parseInt(data.substring(8, 10), 16);
-  const byte6 = parseInt(data.substring(10, 12), 16);
-  const byte7 = parseInt(data.substring(12, 14), 16);
-  const byte8 = parseInt(data.substring(14, 16), 16);
-  const odometer =
-    (byte8 * 16777216 + byte7 * 65536 + byte6 * 256 + byte5) * 0.125;
+  const byte2 = parseInt(data.substring(2, 4), 16);
+  const byte3 = parseInt(data.substring(4, 6), 16);
+  const byte4 = parseInt(data.substring(6, 8), 16);
+  const odometer = (byte2 * 65536 + byte3 * 256 + byte4).toFixed(1);
   return { [parameter]: odometer };
 }
 function processEngineTemperatureStd(data, parameter) {
