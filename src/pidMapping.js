@@ -157,7 +157,7 @@ function processEngineSpeedStd(data, parameter) {
 function processVehicleSpeedStd(data, parameter) {
   const byte1 = parseInt(data.substring(0, 2), 16);
   const byte2 = parseInt(data.substring(2, 4), 16);
-  const vehicleSpeed = ((byte1 * 256 + byte2) / 161).toFixed(1);
+  const vehicleSpeed = ((byte1 * 256 + byte2) / 80).toFixed(1);
   return { [parameter]: vehicleSpeed };
 }
 
