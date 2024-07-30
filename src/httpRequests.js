@@ -10,6 +10,7 @@ async function login() {
       admin_email: config.email,
       password: config.password,
     });
+    console.log("logging in as: " + config.email);
     authToken = response.data.token;
     console.log("Logged in successfully.");
     console.log(authToken);
