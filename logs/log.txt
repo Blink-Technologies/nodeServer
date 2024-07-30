@@ -1,5 +1,0 @@
-HTML server is serving files from . at http://localhost:3046/logs
-TCP server listening on port 3000
-Server is running on port 3046
-Logged in successfully.
-Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1ODUwOGViZTU2MWI1MTk2YTdkM2MzMyIsIm5hbWUiOiJTdXBlciBBZG1pbiIsImVtYWlsIjoic3VwZXJhZG1pbkBnbWFpbC5jb20iLCJvcmdhbml6YXRpb24iOiJBRE1JSU4iLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJpYXQiOjE3MjE5MDUxMzgsImV4cCI6MTcyMTkxOTUzOH0.99J-_W-p0pPG42dhi70ZrFnUo_hFnvQsUWEOu-7_hvc

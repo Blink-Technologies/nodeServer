@@ -6,11 +6,11 @@ let authToken = "";
 
 async function login() {
   try {
+    console.log("logging in as: " + config.email);
     const response = await axios.post(config.loginUrl, {
       admin_email: config.email,
       password: config.password,
     });
-    console.log("logging in as: " + config.email);
     authToken = response.data.token;
     console.log("Logged in successfully.");
     console.log(authToken);
