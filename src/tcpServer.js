@@ -35,7 +35,7 @@ function start() {
   });
 }
 
-function processData(data, socket) {
+async function processData(data, socket) {
   const textToAppend = "Received: " + data + " from: " + socket.remoteAddress;
   appendToFile(textToAppend)
     .then(() => {
@@ -71,7 +71,7 @@ function processData(data, socket) {
   buffer[socket.remoteAddress] = incompleteMessage ? [incompleteMessage] : [];
 
   // Process complete messages
-  messages.forEach((message) => {
+  messages.forEach(async (message) => {
     console.log(
       "Received message:" + message + "  from: " + socket.remoteAddress
     );
@@ -94,6 +94,9 @@ function processData(data, socket) {
     } else {
       console.log("Unknown message format:", message);
     }
+
+    const imei = socketToImeiMap[socket.remoteAddress];
+    await makeLogHttpRequest(imei, message);
   });
 }
 

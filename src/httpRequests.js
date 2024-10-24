@@ -35,10 +35,11 @@ async function makeHttpRequest(imei, latitude, longitude) {
     }
   }
 }
-async function makeHttpRequest(imei, latitude, longitude) {
+async function makeKeyValueHttpRequest(imei, keyValue) {
   const url = `${config.apiUrl}/equipment/editEquipment/${imei}`;
+  //const url = "http://192.168.100.25:5000";
   const headers = { Authorization: authToken };
-  const body = { longitude, latitude };
+  const body = { ...keyValue };
 
   try {
     const response = await axios.post(url, body, { headers });
@@ -51,11 +52,15 @@ async function makeHttpRequest(imei, latitude, longitude) {
     }
   }
 }
-async function makeKeyValueHttpRequest(imei, keyValue) {
-  const url = `${config.apiUrl}/equipment/editEquipment/${imei}`;
+
+async function makeLogHttpRequest(imei, message) {
+  const url = `${config.apiUrl}/logs/createLog`;
   //const url = "http://192.168.100.25:5000";
   const headers = { Authorization: authToken };
-  const body = { ...keyValue };
+  const body = {
+    imei: imei,
+    data: message,
+  };
 
   try {
     const response = await axios.post(url, body, { headers });
