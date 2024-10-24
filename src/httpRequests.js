@@ -54,6 +54,9 @@ async function makeKeyValueHttpRequest(imei, keyValue) {
 }
 
 async function makeLogHttpRequest(imei, message) {
+  if (!imei) {
+    reject("invalid imei");
+  }
   const url = `${config.apiUrl}/logs/createLog`;
   //const url = "http://192.168.100.25:5000";
   const headers = { Authorization: authToken };
