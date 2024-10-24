@@ -1,8 +1,11 @@
 // tcpServer.js
 const net = require("net");
 const config = require("./config");
-const { makeHttpRequest, makeKeyValueHttpRequest } = require("./httpRequests");
-const { appendToFile, deleteFile } = require("./appendToFile");
+const {
+  makeHttpRequest,
+  makeKeyValueHttpRequest,
+  makeLogHttpRequest,
+} = require("./httpRequests");
 const pidMapping = require("./pidMapping");
 
 let buffer = {};
@@ -31,20 +34,11 @@ function start() {
 
   server.listen(config.tcpPort, () => {
     console.log(`TCP server listening on port ${config.tcpPort}`);
-    deleteFile();
   });
 }
 
 async function processData(data, socket) {
   const textToAppend = "Received: " + data + " from: " + socket.remoteAddress;
-  appendToFile(textToAppend)
-    .then(() => {
-      console.log("Text appended to file successfully.");
-    })
-    .catch((err) => {
-      console.error("Error appending text to file:", err);
-    });
-
   // Process received data and extract information
   // Add data to buffer
   if (!buffer[socket.remoteAddress]) {

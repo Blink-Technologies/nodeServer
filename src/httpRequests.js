@@ -90,5 +90,6 @@ module.exports = {
   login,
   makeHttpRequest,
   makeKeyValueHttpRequest,
+  makeLogHttpRequest,
   setOnUnauthorizedCallback,
 };
