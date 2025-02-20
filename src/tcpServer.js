@@ -198,7 +198,7 @@ async function processCanMessage(message, socket) {
       // Making the HTTP request using the key-value pair
       await makeKeyValueHttpRequest(imei, keyValue);
 
-      socket.write("#AD#1;00\r\n");
+      socket.write("#AD#1;\r\n");
     } catch (error) {
       console.error(error.message);
       socket.write("#AD#0\r\n");
