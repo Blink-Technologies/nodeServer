@@ -428,6 +428,7 @@ function processInputsOutputs(data, parameter) {
     DO2: DO2,
     AI1: analogInput1,
     AI2: analogInput2,
+    AI3: analogInput3,
   };
 }
 
