@@ -1,30 +1,47 @@
 const fs = require("fs");
-const filePath = "./logs/console-logs.html";
+const path = require("path");
+
+const logsDir = path.join(__dirname, "logs");
+const defaultFile = path.join(logsDir, "console-logs.html");
 
 module.exports = {
   appendToFile: function (text, imei) {
-    text = "<p>" + new Date().toISOString() + " - " + text + "</p>" + "\n";
+    const filePath = imei
+      ? path.join(logsDir, `logs-${imei}.html`)
+      : defaultFile;
+
+    text = "<p>" + new Date().toISOString() + " - " + text + "</p>\n";
+
     return new Promise((resolve, reject) => {
-      fs.open(filePath + (imei ? `?imei=${imei}` : ""), "a", (err, fd) => {
+      // Ensure logs directory exists
+      fs.mkdir(logsDir, { recursive: true }, (err) => {
         if (err) {
           reject(err);
           return;
         }
 
-        fs.appendFile(fd, text, "utf8", (err) => {
+        // Open (or create) the file
+        fs.open(filePath, "a", (err, fd) => {
           if (err) {
-            fs.close(fd, () => {
-              reject(err);
-            });
+            reject(err);
             return;
           }
 
-          fs.close(fd, (err) => {
+          fs.appendFile(fd, text, "utf8", (err) => {
             if (err) {
-              reject(err);
+              fs.close(fd, () => {
+                reject(err);
+              });
               return;
             }
-            resolve();
+
+            fs.close(fd, (err) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+              resolve();
+            });
           });
         });
       });
@@ -33,24 +50,17 @@ module.exports = {
 
   deleteFile: function () {
     return new Promise((resolve, reject) => {
-      // Check if the file exists
-      fs.access(filePath, fs.constants.F_OK, (err) => {
+      fs.access(defaultFile, fs.constants.F_OK, (err) => {
         if (err) {
           if (err.code === "ENOENT") {
-            // File doesn't exist, resolve immediately
-            resolve();
+            resolve(); // File doesn't exist, no problem
           } else {
-            // Other error, reject with the error
             reject(err);
           }
         } else {
-          // File exists, proceed with deletion
-          fs.unlink(filePath, (err) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve();
-            }
+          fs.unlink(defaultFile, (err) => {
+            if (err) reject(err);
+            else resolve();
           });
         }
       });
