@@ -1,36 +1,44 @@
-// htmlServer.js
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
-function serveLatestHTML() {
-  const htmlDir = ".";
-  const endpoint = "/logs";
+function serveAllFilesFromCurrentDirectory() {
+  const baseDir = process.cwd(); // current directory
   const port = 3046;
-  const server = http.createServer((req, res) => {
-    const htmlFilePath = path.join(htmlDir, "console-logs.html");
 
-    // Read the HTML file dynamically
-    fs.readFile(htmlFilePath, (err, data) => {
+  const server = http.createServer((req, res) => {
+    let requestedPath = req.url === "/" ? "/index.html" : req.url;
+    const filePath = path.join(baseDir, decodeURIComponent(requestedPath));
+
+    fs.readFile(filePath, (err, data) => {
       if (err) {
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Internal Server Error");
+        res.writeHead(404, { "Content-Type": "text/plain" });
+        res.end("File Not Found");
         return;
       }
 
-      // Serve the HTML file
-      res.writeHead(200, { "Content-Type": "text/html" });
+      // Determine content type
+      const ext = path.extname(filePath).toLowerCase();
+      const contentTypes = {
+        ".html": "text/html",
+        ".js": "application/javascript",
+        ".css": "text/css",
+        ".json": "application/json",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".svg": "image/svg+xml",
+        ".txt": "text/plain",
+      };
+      const contentType = contentTypes[ext] || "application/octet-stream";
+
+      res.writeHead(200, { "Content-Type": contentType });
       res.end(data);
     });
   });
 
   server.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`Serving all files at http://localhost:${port}/`);
   });
-
-  console.log(
-    `HTML server is serving files from ${htmlDir} at http://localhost:${port}${endpoint}`
-  );
 }
 
-module.exports = serveLatestHTML;
+module.exports = serveAllFilesFromCurrentDirectory;

@@ -191,7 +191,7 @@ async function processCanMessage(message, socket) {
     // Call your pidMapping function (assuming it's already defined)
     try {
       const keyValue = pidMapping(pgn, data);
-      logger.appendToFile(JSON.stringify(keyValue));
+      logger.appendToFile(JSON.stringify(keyValue), imei);
 
       /*console.log("Parameter:", param);
       console.log("Value:", value);

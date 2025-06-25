@@ -1,11 +1,11 @@
 const fs = require("fs");
-const filePath = "./console-logs.html";
+const filePath = "./logs/console-logs.html";
 
 module.exports = {
-  appendToFile: function (text) {
+  appendToFile: function (text, imei) {
     text = "<p>" + new Date().toISOString() + " - " + text + "</p>" + "\n";
     return new Promise((resolve, reject) => {
-      fs.open(filePath, "a", (err, fd) => {
+      fs.open(filePath + (imei ? `?imei=${imei}` : ""), "a", (err, fd) => {
         if (err) {
           reject(err);
           return;
