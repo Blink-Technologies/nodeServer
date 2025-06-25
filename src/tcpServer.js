@@ -7,6 +7,7 @@ const {
   makeLogHttpRequest,
 } = require("./httpRequests");
 const pidMapping = require("./pidMapping");
+const appendToFile = require("./appendToFile");
 
 let buffer = {};
 let socketToImeiMap = {}; // Mapping socket objects to their corresponding IMEI numbers
@@ -190,13 +191,13 @@ async function processCanMessage(message, socket) {
     // Call your pidMapping function (assuming it's already defined)
     try {
       const keyValue = pidMapping(pgn, data);
+      appendToFile(keyValue);
 
       /*console.log("Parameter:", param);
       console.log("Value:", value);
       const keyValue = { [param]: value };*/
 
       // Making the HTTP request using the key-value pair
-      console.log("Key-Value Pair:", JSON.stringify(keyValue));
       await makeKeyValueHttpRequest(imei, keyValue);
 
       socket.write("#AD#1;\r\n");
