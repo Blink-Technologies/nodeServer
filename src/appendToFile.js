@@ -9,6 +9,7 @@ module.exports = {
     const filePath = imei
       ? path.join(logsDir, `logs-${imei}.html`)
       : defaultFile;
+    console.log(`Appending to file: ${filePath}`);
 
     text = "<p>" + new Date().toISOString() + " - " + text + "</p>\n";
 
