@@ -196,6 +196,7 @@ async function processCanMessage(message, socket) {
       const keyValue = { [param]: value };*/
 
       // Making the HTTP request using the key-value pair
+      console.log("Key-Value Pair:", JSON.stringify(keyValue));
       await makeKeyValueHttpRequest(imei, keyValue);
 
       socket.write("#AD#1;\r\n");

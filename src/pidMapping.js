@@ -9,6 +9,10 @@ const mapping = {
     parameter: "engineTemperature",
     function: processEngineTemperatureStd,
   },
+  61441: {
+    parameter: "asrEngineControlActive",
+    function: processElectronicBrakeController1,
+  },
   61443: {
     parameter: "acceleratorPedalPosition",
     function: processAcceleratorPedal,
@@ -16,9 +20,25 @@ const mapping = {
   61444: { parameter: "rpm", function: processEngineSpeed },
   65265: { parameter: "speed", function: processVehicleSpeed },
   65255: { parameter: "hoursOfOperation", function: processHoursOfOperation },
+  65247: {
+    parameter: "NominalFrictionTorquePercentage",
+    function: processElectronicEngineController3,
+  },
   65248: { parameter: "odometer", function: processOdometer },
   65262: { parameter: "engineTemperature", function: processEngineTemperature },
   65263: { parameter: "engineOilLevel", function: processEngineOilLevel },
+  65264: {
+    parameter: "powerTakeoffOilTemperature",
+    function: processPowerTakeoffOilTemperature,
+  },
+  65269: {
+    parameter: "BarometricPressure",
+    function: processBarometricPressure,
+  },
+  65270: {
+    parameter: "particulateTrapInletPressure",
+    function: processParticulateTrapInletPressure,
+  },
   65271: { parameter: "batteryVoltage", function: processBatteryVoltage },
   65276: { parameter: "fuelLevel", function: processFuelLevel },
   65170: {
@@ -249,6 +269,9 @@ const engineTest_IdleSwitchMapping = {
   0: "Off",
   1: "On",
 };
+
+const extract2Bits = (byte, bitPosition) => (byte >> (bitPosition - 1)) & 0b11;
+
 function processVehicleSpeed(data, parameter) {
   const byte1 = parseInt(data.substring(0, 2), 16).toString(2).padStart(8, "0");
   const twoSpeedAxleSwitch =
@@ -469,4 +492,155 @@ function processEngineTemperatureStd(data, parameter) {
   const odometer =
     (byte8 * 16777216 + byte7 * 65536 + byte6 * 256 + byte5) * 0.125;
   return { [parameter]: odometer };
+}
+
+function processParticulateTrapInletPressure(data, parameter) {
+  const byte1 = parseInt(data.substring(0, 2), 16);
+  const byte2 = parseInt(data.substring(2, 4), 16);
+  const byte3 = parseInt(data.substring(4, 6), 16);
+  const byte4 = parseInt(data.substring(6, 8), 16);
+  const byte5 = parseInt(data.substring(8, 10), 16);
+  const byte6 = parseInt(data.substring(10, 12), 16);
+  const byte7 = parseInt(data.substring(12, 14), 16);
+  const byte8 = parseInt(data.substring(14, 16), 16);
+  const particulateTrapInletPressure = byte1 * 0.5;
+  const boostPressure = byte2 * 2;
+  const intakeManifoldTemperature = byte3 - 40;
+  const airInletPressure = byte4 * 2;
+  const airFilter1DiffPressure = byte5 * 2;
+  const coolantFilter1DiffPressure = byte8 * 0.5;
+  const exhaustGasTemperature = (byte7 * 256 + byte6) * 0.03125 - 273;
+  return {
+    [parameter]: particulateTrapInletPressure,
+    boostPressure,
+    intakeManifoldTemperature,
+    airInletPressure,
+    airFilter1DiffPressure,
+    coolantFilter1DiffPressure,
+    exhaustGasTemperature,
+  };
+}
+
+function processElectronicEngineController3(data, parameter) {
+  const byte1 = parseInt(data.substring(0, 2), 16);
+  const byte2 = parseInt(data.substring(2, 4), 16);
+  const byte3 = parseInt(data.substring(4, 6), 16);
+  const byte4 = parseInt(data.substring(6, 8), 16);
+
+  const NominalFrictionTorquePercentage = byte1 - 125;
+  const engineDesiredOperatingSpeed = (byte3 * 256 + byte2) * 0.125;
+  const engineDesiredOperatingSpeedAssymetryAdjustment = byte4;
+
+  return {
+    [parameter]: NominalFrictionTorquePercentage,
+    engineDesiredOperatingSpeed,
+    engineDesiredOperatingSpeedAssymetryAdjustment,
+  };
+}
+
+const processElectronicBrakeController1 = (data, parameter) => {
+  const bytes = [];
+  for (let i = 0; i < data.length; i += 2) {
+    bytes.push(parseInt(data.substring(i, i + 2), 16));
+  }
+
+  return {
+    // Byte 1
+    [parameter]: extract2Bits(bytes[0], 1), // SPN 561 (bits 1–2)
+    asrBrakeControlActive: extract2Bits(bytes[0], 3), // SPN 562 (bits 3–4)
+    absActive: extract2Bits(bytes[0], 5), // SPN 563 (bits 5–6)
+    ebsBrakeSwitch: extract2Bits(bytes[0], 7), // SPN 1121 (bits 7–8)
+
+    // Byte 2
+    brakePedalPosition: bytes[1] * 0.4, // SPN 521 (0–100%)
+
+    // Byte 3
+    absOffRoadSwitch: extract2Bits(bytes[2], 1), // SPN 575 (bits 1–2)
+    asrOffRoadSwitch: extract2Bits(bytes[2], 3), // SPN 576 (bits 3–4)
+    asrHillHolderSwitch: extract2Bits(bytes[2], 5), // SPN 577 (bits 5–6)
+    tractionControlOverrideSwitch: extract2Bits(bytes[2], 7), // SPN 1238 (bits 7–8)
+
+    // Byte 4
+    acceleratorInterlockSwitch: extract2Bits(bytes[3], 1), // SPN 972
+    engineDerateSwitch: extract2Bits(bytes[3], 3), // SPN 971
+    auxEngineShutdownSwitch: extract2Bits(bytes[3], 5), // SPN 970
+    remoteAcceleratorEnableSwitch: extract2Bits(bytes[3], 7), // SPN 969
+
+    // Byte 5
+    engineRetarderSelection: bytes[4] * 0.4, // SPN 973 (raw value)
+
+    // Byte 6
+    absFullyOperational: extract2Bits(bytes[5], 1), // SPN 1243
+    ebsRedWarningSignal: extract2Bits(bytes[5], 3), // SPN 1439
+    absEbsAmberWarningSignal: extract2Bits(bytes[5], 5), // SPN 1438
+    atcAsrInformationSignal: extract2Bits(bytes[5], 7), // SPN 1793
+
+    // Byte 7
+    sourceAddressOfBrakeControl: bytes[6], // SPN 1481
+
+    // Byte 8
+    trailerAbsStatus: extract2Bits(bytes[7], 5), // SPN 1836 (bits 5–6)
+    trailerAbsWarning: extract2Bits(bytes[7], 7), // SPN 1792 (bits 7–8)
+  };
+};
+
+function processPowerTakeoffOilTemperature(data, parameter) {
+  const byte1 = parseInt(data.substring(0, 2), 16);
+  const byte2 = parseInt(data.substring(2, 4), 16);
+  const byte3 = parseInt(data.substring(4, 6), 16);
+  const byte4 = parseInt(data.substring(6, 8), 16);
+  const byte5 = parseInt(data.substring(8, 10), 16);
+  const byte6 = parseInt(data.substring(10, 12), 16);
+  const byte7 = parseInt(data.substring(12, 14), 16);
+  const byte8 = parseInt(data.substring(14, 16), 16);
+
+  const powerTakeoffOilTemperature = byte1 - 40;
+  const powerTakeoffSpeed = (byte3 * 256 + byte2) * 0.125;
+  const powerTakeoffSetSpeed = (byte5 * 256 + byte4) * 0.125;
+
+  const PtoEnableSwitch = extract2Bits(byte6, 1);
+  const remotePtoPreprogrammedSpeedControlSwitch = extract2Bits(byte6, 3);
+  const remotePtoVariableSpeedControlSwitch = extract2Bits(byte6, 5);
+
+  const ptoSetSwitch = extract2Bits(byte7, 1);
+  const ptoCoastSwitch = extract2Bits(byte7, 3);
+  const ptoResumeSwitch = extract2Bits(byte7, 5);
+  const ptoAccelerateSwitch = extract2Bits(byte7, 7);
+
+  return {
+    [parameter]: powerTakeoffOilTemperature,
+    powerTakeoffSpeed,
+    powerTakeoffSetSpeed,
+    PtoEnableSwitch,
+    remotePtoPreprogrammedSpeedControlSwitch,
+    remotePtoVariableSpeedControlSwitch,
+    ptoSetSwitch,
+    ptoCoastSwitch,
+    ptoResumeSwitch,
+    ptoAccelerateSwitch,
+  };
+}
+
+function processBarometricPressure(data, parameter) {
+  const byte1 = parseInt(data.substring(0, 2), 16);
+  const byte2 = parseInt(data.substring(2, 4), 16);
+  const byte3 = parseInt(data.substring(4, 6), 16);
+  const byte4 = parseInt(data.substring(6, 8), 16);
+  const byte5 = parseInt(data.substring(8, 10), 16);
+  const byte6 = parseInt(data.substring(10, 12), 16);
+  const byte7 = parseInt(data.substring(12, 14), 16);
+  const byte8 = parseInt(data.substring(14, 16), 16);
+
+  const barometricPressure = byte1 * 0.5;
+  const cabInteriorTemperature = (byte3 * 256 + byte2) * 0.3125 - 273;
+  const ambientAirTemperature = (byte5 * 256 + byte4) * 0.3125 - 273;
+  const airInletTemperature = byte6 - 40;
+  const roadSurfaceTemperature = (byte8 * 256 + byte7) * 0.3125 - 273;
+  return {
+    [parameter]: barometricPressure,
+    cabInteriorTemperature,
+    ambientAirTemperature,
+    airInletTemperature,
+    roadSurfaceTemperature,
+  };
 }
