@@ -3,7 +3,6 @@ const filePath = "./console-logs.html";
 
 module.exports = {
   appendToFile: function (text) {
-    return;
     text = "<p>" + new Date().toISOString() + " - " + text + "</p>" + "\n";
     return new Promise((resolve, reject) => {
       fs.open(filePath, "a", (err, fd) => {
