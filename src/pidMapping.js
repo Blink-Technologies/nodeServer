@@ -538,7 +538,7 @@ function processElectronicEngineController3(data, parameter) {
   };
 }
 
-const processElectronicBrakeController1 = (data, parameter) => {
+function processElectronicBrakeController1(data, parameter) {
   const bytes = [];
   for (let i = 0; i < data.length; i += 2) {
     bytes.push(parseInt(data.substring(i, i + 2), 16));
@@ -582,7 +582,7 @@ const processElectronicBrakeController1 = (data, parameter) => {
     trailerAbsStatus: extract2Bits(bytes[7], 5), // SPN 1836 (bits 5–6)
     trailerAbsWarning: extract2Bits(bytes[7], 7), // SPN 1792 (bits 7–8)
   };
-};
+}
 
 function processPowerTakeoffOilTemperature(data, parameter) {
   const byte1 = parseInt(data.substring(0, 2), 16);
