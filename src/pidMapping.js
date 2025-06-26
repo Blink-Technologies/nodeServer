@@ -107,7 +107,7 @@ function processEngineSpeed(data, parameter) {
   const modeString = engineRetarderTorqueModes[first4Bits];
 
   const byte8 = parseInt(data.substring(14, 16), 16);
-  const engineDemandTorque = byte2 - 125;
+  const engineDemandTorque = byte8 - 125;
 
   return {
     [parameter]: engineSpeed,
