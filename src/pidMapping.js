@@ -21,7 +21,7 @@ const mapping = {
   65265: { parameter: "speed", function: processVehicleSpeed },
   65255: { parameter: "hoursOfOperation", function: processHoursOfOperation },
   65247: {
-    parameter: "NominalFrictionTorquePercentage",
+    parameter: "nominalFrictionTorquePercentage",
     function: processElectronicEngineController3,
   },
   65248: { parameter: "odometer", function: processOdometer },
@@ -32,7 +32,7 @@ const mapping = {
     function: processPowerTakeoffOilTemperature,
   },
   65269: {
-    parameter: "BarometricPressure",
+    parameter: "barometricPressure",
     function: processBarometricPressure,
   },
   65270: {
@@ -42,7 +42,7 @@ const mapping = {
   65271: { parameter: "batteryVoltage", function: processBatteryVoltage },
   65276: { parameter: "fuelLevel", function: processFuelLevel },
   65170: {
-    parameter: "InstantaneousBrakePower",
+    parameter: "instantaneousBrakePower",
     function: processEngineInformation,
   },
   4804467: { parameter: "IOs", function: processInputsOutputs },
@@ -293,7 +293,9 @@ function processVehicleSpeed(data, parameter) {
   const brakeSwitch = brakeSwitchMapping[parseInt(byte4.substring(4, 6), 2)];
   const clutchSwitch = clutchSwitchMapping[parseInt(byte4.substring(6, 8), 2)];
 
-  const byte5 = parseInt(data, 16).toString(2).padStart(8, "0");
+  const byte5 = parseInt(data.substring(8, 10), 16)
+    .toString(2)
+    .padStart(8, "0");
   const cruiseControlSetSwitch =
     cruiseControlSetSwitchMapping[parseInt(byte5.substring(0, 2), 2)];
   const cruiseControlCoastSwitch =
@@ -376,14 +378,14 @@ function processEngineTemperature(data, parameter) {
 }
 
 function processEngineOilLevel(data, parameter) {
-  const byte3 = parseInt(data.substring(0, 2), 16);
+  const byte3 = parseInt(data.substring(4, 6), 16);
   const engineOilLevel = byte3 * 0.4;
   return { [parameter]: engineOilLevel };
 }
 
 function processBatteryVoltage(data, parameter) {
-  const byte7 = parseInt(data.substring(0, 2), 16);
-  const byte8 = parseInt(data.substring(2, 4), 16);
+  const byte7 = parseInt(data.substring(12, 14), 16);
+  const byte8 = parseInt(data.substring(14, 16), 16);
   const batteryVoltage = (byte8 * 256 + byte7) * 0.05;
   return { [parameter]: batteryVoltage };
 }
@@ -395,15 +397,15 @@ function processFuelLevel(data, parameter) {
 function processEngineInformation(data, parameter) {
   const preFilterOilPres = parseInt(data.substring(2, 4), 16) * 4;
   const byte2 = parseInt(data.substring(2, 4), 16);
-  const byte3 = parseInt(data.substring(2, 4), 16);
+  const byte3 = parseInt(data.substring(4, 6), 16);
   const exhaustGasPres = (byte2 * 256 + byte3) / 128 - 250;
-  const byte4 = parseInt(data.substring(2, 4), 16);
+  const byte4 = parseInt(data.substring(6, 8), 16);
   const fuelRackPos = byte4 * 0.4;
-  const byte5 = parseInt(data.substring(2, 4), 16);
-  const byte6 = parseInt(data.substring(2, 4), 16);
+  const byte5 = parseInt(data.substring(8, 10), 16);
+  const byte6 = parseInt(data.substring(10, 12), 16);
   const massFlowEngine = (byte5 * 256 + byte6) * 0.05;
-  const byte7 = parseInt(data.substring(2, 4), 16);
-  const byte8 = parseInt(data.substring(2, 4), 16);
+  const byte7 = parseInt(data.substring(12, 14), 16);
+  const byte8 = parseInt(data.substring(14, 16), 16);
   const estimatedBrakePower = (byte7 * 256 + byte8) * 0.5;
   return {
     [parameter]: estimatedBrakePower,
